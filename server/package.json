@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/amanurmaliya/nukkad-thela/issues"
   },
-  "homepage": "https://github.com/amanurmaliya/nukkad-thela#readme"
+  "homepage": "https://github.com/amanurmaliya/nukkad-thela#readme",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "mongoose": "^8.7.2",
+    "nodemon": "^3.1.7"
+  }
 }
