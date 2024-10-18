@@ -1,0 +1,19 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "This is the backend file for the Nukkad Thela",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amanurmaliya/nukkad-thela.git"
+  },
+  "author": "Bhoomi Agrawal, Manisha Shukla, Abhay Tiwari, Aman Tripathi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amanurmaliya/nukkad-thela/issues"
+  },
+  "homepage": "https://github.com/amanurmaliya/nukkad-thela#readme"
+}
