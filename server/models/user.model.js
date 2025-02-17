@@ -21,6 +21,11 @@ const userSchema = mongoose.Schema({
         type : String,
         required : true,
     },
+    "userType":{
+        type : String,
+        required : true,
+        enum : ['Captains', 'Hero'] // Captains are the Street Vendors and Heros are the users who eat & taste the food
+    },
     "socketId" : {
         type : String,
     }

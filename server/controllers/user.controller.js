@@ -31,6 +31,8 @@ exports.signUp = async (req, res) => {
       })
     }
 
+    // Now first of all verify the Email Address given by the user such that he has given the correct email address
+
     // Make the 10 rounds of hashing before saving it into the database
     const hashPassword = await bcrypt.hash(password, 10);
       
