@@ -1,4 +1,7 @@
 const nodemailer = require("nodemailer");
+// const OTP = require("../models/otp.model.js")
+const OTP = require("../models/otp.models.js");
+
 
 require("dotenv").config();
 
@@ -11,9 +14,12 @@ const sendOTP = async (req, res) => {
         pass: process.env.MAIL_PASS,
       },
     });
-
+    const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
+    
     const receiverId = req.body.receiverId;
-    const { otp } = req.body;
+    const otp  = generateOTP();
+
+
     
     const msg = `<!DOCTYPE html>
     <html lang="en">
@@ -110,6 +116,18 @@ const sendOTP = async (req, res) => {
 
     console.log("Message send", info.messageId);
 
+    try{
+        const otpEntry = new OTP({ email:receiverId, otp });
+        await otpEntry.save();
+    }catch{
+        return res.status(500).json({
+            success: false,
+            message : "Otp failed to save in db"
+        })
+    }
+
+
+
     return res.status(200).json({
       success: true,
       message: "Otp send Successfully! Kindly check the email and verify that",
@@ -122,5 +140,16 @@ const sendOTP = async (req, res) => {
     });
   }
 };
+
+// First of all send the otp and verify with the given otp 
+// const sendotp = async() => {
+//     try {
+//       const response = await axios.post(`${process.env.BACKEND_BASE_URL}/sendotp`)
+  
+//       console.log(response)
+//     } catch (error) {
+//       console.log(error)
+//     }
+//   }
 
 module.exports = sendOTP;

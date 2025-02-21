@@ -1,7 +1,14 @@
 const express = require("express");
+
+// All the user Routers are present here
 const userRouter = require("./routes/user.route");
+
+// All the Vendor Routers are present here
+const vendorRouter = require("./routes/vendor.route.js")
+
 const sendOTP = require("./utils/sendMail");
-// const sen
+
+// const 
 
 const app = express();
 
@@ -20,4 +27,5 @@ app.listen(port, () => {
 });
 
 // mounting
-app.use("/api/v1", userRouter);
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/vendor", vendorRouter);

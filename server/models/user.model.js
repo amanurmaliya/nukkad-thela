@@ -21,11 +21,11 @@ const userSchema = mongoose.Schema({
         type : String,
         required : true,
     },
-    "userType":{
-        type : String,
-        required : true,
-        enum : ['Captains', 'Hero'] // Captains are the Street Vendors and Heros are the users who eat & taste the food
+    "orderId" : {
+        type : mongoose.Schema.Types.ObjectId, // This is the reference to the other model
+        ref  : "Order", // This is the model that it is referring to
     },
+    
     "socketId" : {
         type : String,
     }
