@@ -1,6 +1,10 @@
+const express = require("express")
+
 // Customer | User model
 const User = require("../models/user.model.js");
 const axios = require("axios")
+
+const mongoose = require("mongoose")
 
 // get the otp model for otp
 const OTP = require("../models/otp.models.js")
@@ -13,16 +17,21 @@ const Vendor = require("../models/vendor.model.js")
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Order = require("../models/order.model.js");
+const Shop = require("../models/shop.model.js")
+
+
+// This is used to parese the json 
 
 
 
 
-exports.signUp = async (req, res) => {
+exports.createUser = async (req, res) => {
   try {
-    const { name, email, phone, password, accountType, otp} = req.body;
+    const { name, email, phone, password, otp} = req.body;
 
-    if (!name || !email || !phone || !password || !accountType || !otp) {
-      return res.status(401).json({
+    if (!name || !email || !phone || !password) {
+      console.log(req.body)
+      return res.status(400).json({
         success: false,
         message: "Kindly Fill all the entries for the Registration",
       });
@@ -39,6 +48,7 @@ exports.signUp = async (req, res) => {
     
     // Now first of all verify the Email Address given by the user such that he has given the correct email address
     const otpRecord = await OTP.findOne({email});
+
     console.log()
     // if no record found return
         if(!otpRecord) 
@@ -52,7 +62,7 @@ exports.signUp = async (req, res) => {
         // if record is there match with the user otp
         const dbOtp = otpRecord.otp;
     
-        if(dbOtp!==otp)
+        if(dbOtp==otp)
         {
           return res.status(400).json({
             success: false,
@@ -64,10 +74,7 @@ exports.signUp = async (req, res) => {
         // Make the 10 rounds of hashing before saving it into the database
         const hashPassword = await bcrypt.hash(password, 10);
         
-    //  Validate if the user Already Exists then do not allow the user to signin insteat send him to login
-    // if the account is of user
-    if(accountType==="User")
-    {
+    
       const userExists = await User.findOne({email: email});
       if(userExists)
       {
@@ -89,7 +96,6 @@ exports.signUp = async (req, res) => {
   
       try
       {
-  
         await newUser.save();
       }
       catch(error)
@@ -100,44 +106,44 @@ exports.signUp = async (req, res) => {
           error : error.message
         })
       }
-    }
+    
     
     // if the user is vendor
-    if(accountType==="Vendor")
-    {
-      const vendorExists = await Vendor.findOne({email: email});
-      if(vendorExists)
-      {
-        return res.status(404).json({
-          success : false,
-          message : "The User Already Exists With This Email Kindly Login to Continue",
-        })
-      }
+    // if(accountType==="Vendor")
+    // {
+    //   const vendorExists = await Vendor.findOne({email: email});
+    //   if(vendorExists)
+    //   {
+    //     return res.status(404).json({
+    //       success : false,
+    //       message : "The User Already Exists With This Email Kindly Login to Continue",
+    //     })
+    //   }
 
-      // everything is fine hence
+    //   // everything is fine hence
 
       
-    const newUser = await new Vendor({
-      name,
-      email,
-      phone,
-      password : hashPassword,
-    });
+    // const newUser = await new Vendor({
+    //   name,
+    //   email,
+    //   phone,
+    //   password : hashPassword,
+    // });
 
-    try
-    {
+    // try
+    // {
 
-      await newUser.save();
-    }
-    catch(error)
-    {
-      return res.status(500).json({
-        success : false,
-        message : "Sorry Failed to save the data due to the database server issue",
-        error : error.message
-      })
-    }
-    }
+    //   await newUser.save();
+    // }
+    // catch(error)
+    // {
+    //   return res.status(500).json({
+    //     success : false,
+    //     message : "Sorry Failed to save the data due to the database server issue",
+    //     error : error.message
+    //   })
+    // }
+    // }
 
 
     return res.status(200).json({
@@ -153,77 +159,83 @@ exports.signUp = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) =>
-{
-  try{
-    const {email, password} = req.body;
-    
-    // if you do not get the email & password both then return the user
-    if(!email || !password)
-    {
+
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validate request
+    if (!email || !password) {
       return res.status(400).json({
-        success : false,
-        message : "Kindly enter both the email and the password to login"
-      })
+        success: false,
+        message: "Kindly enter both the email and the password to login",
+      });
     }
 
-    // find if the user exists or not with the help of email
-    const userExists = await User.findOne({email}) 
+    // Check if user exists
+    const userExists = await User.findOne({ email });
 
-    if(!userExists)
-    {
-      return res.status(401).json({
-        success : false,
-        message : "Sorry no user exists with this Email"
-      })
-    }
-
-    // Now match the user password with the db password
-    const matched = await bcrypt.compare(password, userExists.password)
-
-    if(!matched)
-    {
+    if (!userExists) {
       return res.status(401).json({
         success: false,
-        message : "Wrong password"
-      })
+        message: "Sorry, no user exists with this Email",
+      });
     }
 
-    // Making the payload
+    // Validate password
+    const matched = await bcrypt.compare(password, userExists.password);
+    if (!matched) {
+      return res.status(401).json({
+        success: false,
+        message: "Wrong password",
+      });
+    }
+
+    // Prepare JWT payload
     const payload = {
       _id: userExists._id,
-      email : userExists.email,
-      socketId : userExists.socketId,
-    }
+      email: userExists.email,
+      userType: userExists.userType, // Ensure userType is stored in DB
+    };
 
-    // make the token so that the user details can be stored in that in order to verify in future
-    const token = jwt.sign(payload, process.env.JWT_SECRET);
+    // Generate JWT token with expiry
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
 
+    // Set token in cookies (Secure & HTTP-only)
+    res.cookie("userInfo", token, {
+      httpOnly: true,
+      secure: true, // Ensure this is set in production with HTTPS
+      sameSite: "None", // Required for cross-origin authentication
+      maxAge: 24 * 60 * 60 * 1000, // 1 day expiry
+    });
 
-    // Storing the tokens in the cookies
-    res.cookie("userInfo", token);
-
-    // Returning the status in the form of the data
+    // Return success response with user details (excluding password)
     return res.status(200).json({
-      success : true, 
-      message : `Welcome ${userExists.name}`
-    })
+      success: true,
+      message: `Welcome ${userExists.name}`,
+      user: {
+        _id: userExists._id,
+        name: userExists.name,
+        email: userExists.email,
+        userType: userExists.userType,
+      },
+    });
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      success: false,
+      message: "Sorry, cannot log in due to server error",
+      error: error.message,
+    });
   }
-  catch(error)
-  {
-    return res.status(501).json({
-      success : false,
-      message : "Sorry Cannot be logged in due to server error",
-      error : error.message
-    })
-  }
-}
+};
+
 
 const createOrder = async (req, res) => {
   try {
     const {vendorId, userId, productName, productPrice, paymentStatus} = req.body;
 
-    if(!vendorId || !userId || !productName || !productPrice || !paymentStatus )
+    if(!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(vendorId) || !productName || !productPrice || !paymentStatus )
     {
       return res.status(400).json({
         success : false,
@@ -291,4 +303,128 @@ const createOrder = async (req, res) => {
   }
 }
 
+const showShops = async(res, req) => {
+  try {
+    const {location, dish, shopName} = req.body;
+
+    if(!location)
+    {
+      return res.status(400).json({
+        success : false, 
+        message : "Kindly Fill The Location To Get The Shops"
+      })
+    }
+
+    // Here if the shop name is present then search via shop name only
+    if(shopName)
+      {
+        try {
+          const shopDetails = await Shop.find({
+            location, // yaha chahe location : location likho ya na likho 
+            shopName // es6 ke baad iska mtlb yahi hai ki jaha shopName hoga toh isse utha ke yaha daaal dega
+          })
+          
+          return res.status(200).json({
+            success : true,
+            shopDetails : shopDetails
+          })
+        } catch (error) {
+          return res.status(500).json({
+            success : false,
+            message : "Sorry Failed to Fetch The Shops From The DB Server kindly try again Later!"
+          })
+        }
+      }
+
+      // if you have both the dish and the location then search according to both
+      // Here you need to get the data from the dishes too
+      if(dish)
+      {
+        try {
+          const shopDetails = Shop.aggregate([
+            // in the shop section search by location
+            {
+              $match : {
+                location : location
+              }
+            },
+
+            // look at the dishes id in the shop collection
+            {
+              $lookup : {
+                from : "Dish",
+                localFeild : "dishes",
+                foreignFeild : "_id",
+                as : "dishDetails" // dish Details naam se leke aao
+              }
+            },
+
+            // ab qki Dish Details naam se aa gaya hai toh usse search kar lo
+            {
+              $match : {
+                "dishDetails.name" : dish
+              }
+            }
+          ])
+
+
+          return res.status(200).json({
+            success : true,
+            shopDetails
+          })
+        } catch (error) {
+          return res.status(500).json({
+            success : false,
+            message : "Sorry Failed to Fetch The Shops From The DB Server kindly try again Later!"
+          })
+        }
+      }
+
+      // agar upar ki dono conditions true nahi hai then it means that the user  has search according to the location itself
+      
+          try {
+            const shopDetails = await Shop.find({
+              location, // yaha chahe location : location likho ya na likho 
+            })
+            
+            return res.status(200).json({
+              success : true,
+              shopDetails : shopDetails
+            })
+          } catch (error) {
+            return res.status(500).json({
+              success : false,
+              message : "Sorry Failed to Fetch The Shops From The DB Server kindly try again Later!"
+            })
+          }
+  } catch (error) {
+    return res.status(500).json({
+      success : false,
+      message : "Failed To Get The Shops Details Due To Internal Server Error. Kindly Try again after some time"
+    })
+  }
+}
+
+exports.showAllLocations = async (req, res) => {
+  try {
+    // This will take out all the unique locations of all the shops present
+    const locations = await Shop.distinct("location");
+
+    return res.status(200).json({
+      success : true, locations  // send the locations with the locations name itself
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success : false,
+      message : "Sorry Failed to Fetch The Locations From The DB Server kindly try again Later!",
+      error : error.message
+    })
+  }
+}
+
+
+
+
+
 exports.createOrder = createOrder
+exports.showShops = showShops

@@ -10,10 +10,10 @@ const shopSchema = mongoose.Schema({
         type : String,
         trim : true,
     },
-    "dishes" : {
+    "dishes" : [{
         type : mongoose.Schema.Types.ObjectId,
         ref : "Dish"
-    },
+    }],
     "orderInfo" :[ {
         type : mongoose.Schema.Types.ObjectId,
         ref : Order,

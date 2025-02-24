@@ -53,7 +53,7 @@ const likeOrDislike = async (req, res) => {
 // create a comment 
 const createRatingAndReview = async (req, res) => {
     try {
-        const {comment, rate, userId} = req.body
+        const {comment, rate, userId="gvhggh"} = req.body
 
         if(!comment, !rate, !userId) 
         {

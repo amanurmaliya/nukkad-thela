@@ -16,7 +16,7 @@ const sendOTP = async (req, res) => {
     });
     const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
     
-    const receiverId = req.body.receiverId;
+    const receiverId = req.body.email;
     const otp  = generateOTP();
 
 
@@ -117,12 +117,17 @@ const sendOTP = async (req, res) => {
     console.log("Message send", info.messageId);
 
     try{
-        const otpEntry = new OTP({ email:receiverId, otp });
-        await otpEntry.save();
+        const otpsend = await OTP.findOneAndUpdate(
+            { email: receiverId }, // Find by email
+            { otp }, // Update the OTP field
+            { upsert: true, new: true } // Create a new entry if not found
+          );
+          
     }catch{
         return res.status(500).json({
             success: false,
-            message : "Otp failed to save in db"
+            message : "Otp failed to save in db",
+            error : error.message
         })
     }
 
@@ -137,19 +142,11 @@ const sendOTP = async (req, res) => {
     return res.status(501).json({
       success: false,
       message: "The otp cannot be sended by server please try again",
+      error : error.message
     });
   }
 };
 
-// First of all send the otp and verify with the given otp 
-// const sendotp = async() => {
-//     try {
-//       const response = await axios.post(`${process.env.BACKEND_BASE_URL}/sendotp`)
-  
-//       console.log(response)
-//     } catch (error) {
-//       console.log(error)
-//     }
-//   }
+
 
 module.exports = sendOTP;

@@ -10,6 +10,15 @@ const dishSchema = mongoose.Schema({
         type : String,
         trim : true,
     },
+    "price" : {
+        type : Number,
+        required: true,
+    },
+    "category" : {
+        type : String,
+        enum : ["Veg", "Non-Veg", "Chinese", "Spicy"],
+        required : true,
+    },
     "timeToCook" : {
         type : Number,
         required : true,

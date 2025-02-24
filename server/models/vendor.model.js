@@ -22,6 +22,7 @@ const vendorSchema = mongoose.Schema({
     "shop" : {
         type : mongoose.Schema.Types.ObjectId,
         ref : "Shop",
+        default : null
     },
 
 
