@@ -17,6 +17,10 @@ import Header from "./utils/Header.jsx";
 import Footer from "./utils/Footer.jsx";
 import ShowShopDetails from "./pages/user/ShowShopDetails.jsx";
 import UserDashboard from "./pages/user/UserDashboard.jsx";
+import OrderSuccess from "./pages/payment/OrderSuccess.jsx";
+import OrderTracking from "./pages/user/OrderTracking.jsx";
+import ShopPage2 from "./pages/user/ShopPage2.jsx";
+import CustomerDashboard from "./pages/user/UserDashboard2.jsx";
 
 function App() {
   return (
@@ -42,8 +46,12 @@ function App() {
         <Route path="/menu" element={<Menu/>}></Route>
         <Route path="/show-reviews" element={<ShowReviews/>}></Route>
         <Route path="/shop-detail" element={<ShopDetail/>}></Route>
-        <Route path="/show-shop-details" element={<ShowShopDetails/>}></Route>
+        <Route path="/shop-detail/:id" element={<ShowShopDetails/>}></Route>
         <Route path="/" element={<UserDashboard/>}></Route>
+        <Route path="/order-success" element={<OrderSuccess />} />
+        <Route path="/ordertrack" element={<OrderTracking/>}></Route>
+        <Route path="/manisha" element={<CustomerDashboard/>}></Route>
+
         {/* </div>{" "} */}
     </Routes>
     </BrowserRouter>

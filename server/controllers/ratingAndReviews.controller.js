@@ -2,6 +2,8 @@ const mongoose = require("mongoose")
 
 const Like = require("../models/like.model.js")
 const RatingAndReviews = require("../models/review.model.js")
+const jwt = require("jsonwebtoken");
+const Shop = require("../models/shop.model.js");
 
 // This will automatically create like and dislike the shop
 const likeOrDislike = async (req, res) => {
@@ -11,7 +13,7 @@ const likeOrDislike = async (req, res) => {
         if(!userId) 
         {
             return res.status(404).json({
-                success : true,
+                success : false,
                 message : "No user found"
             })
         }
@@ -51,46 +53,56 @@ const likeOrDislike = async (req, res) => {
 };
 
 // create a comment 
+
 const createRatingAndReview = async (req, res) => {
     try {
-        const {comment, rate, userId="gvhggh"} = req.body
-
-        if(!comment, !rate, !userId) 
-        {
+        // ✅ Extract user token from cookies
+        const token = req?.cookies?.userInfo;
+        if (!token) {
+            return res.status(401).json({ success: false, message: "Unauthorized, no token found" });
+        }
+        
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded._id; // ✅ Extract userId from token
+        
+        const { comment, rate, shopId } = req.body;
+        // ✅ Validate input
+        if (!comment || !rate || !shopId) {
             return res.status(400).json({
-                success : false,
-                message : "Kindly Enter all the things to rate the shop",
-            })
+                success: false,
+                message: "Please enter all fields: comment, rate, and shopId",
+            });
         }
 
-        try
-        {
-            const newComment = await RatingAndReviews.create({comment, rate, userId})
+        // ✅ Create the rating and review
+        const newComment = await RatingAndReviews.create({ comment, rate, userId });
 
-            if(newComment)
-            {
-                return res.status(201).json({
-                    success : true, 
-                    message : "Comment Created SuccessFully"
-                })
-            }
+        // ✅ If created, push review ID into `shop.reviewAndRatings`
+        if (newComment) {
+            await Shop.findByIdAndUpdate(shopId, {
+                $push: { reviewsAndRatings: newComment._id }
+            });
+
+            return res.status(201).json({
+                success: true,
+                message: "Review submitted successfully",
+                review: newComment
+            });
         }
-        catch(error)
-        {
-            return res.status(400).json({
-                success : false,
-                message : "Failed to create the rating in the database",
-                error
-            })
-        }
+
+        return res.status(400).json({ success: false, message: "Failed to create review" });
+
     } catch (error) {
+        console.error("Error in createRatingAndReview:", error);
         return res.status(500).json({
-            success : false,
-            message : "Failed to create rating due to Internal server error",
-            error : error // isse agar sirf error bhi kar dete toh same mtlb hai
-        })
+            success: false,
+            message: "Internal Server Error",
+            error
+        });
     }
-}
+};
+
+
 
 
 const deleteRatingAndReview = async (req, res) => {

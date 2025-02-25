@@ -5,51 +5,50 @@ import { Button } from "@/components/ui/button";
 const Payment = () => {
   const [loading, setLoading] = useState(false);
 
-  const handlePayment = async () => {
+
+const handlePayment = async () => {
     try {
-      setLoading(true);
+        const { data } = await axios.post("http://localhost:4000/api/v1/payment/createorder", {
+            amount: 500,  // Example amount
+            userId: "user123",
+            vendorId: "shop456",
+            productName: "Special Dish"
+        });
 
-      // 1️⃣ Create Order (Backend API Call)
-      const { data } = await axios.post("http://localhost:4000/api/v1/payment/createorder", {
-        amount: 500, // ₹500
-        currency: "INR"
-      });
+        const options = {
+            key: import.meta.env.VITE_RAZORPAY_API_KEY,
+            amount: data.amount,
+            currency: data.currency,
+            name: "Style Spot",
+            description: "Order Payment",
+            order_id: data.orderId,
+            handler: async (response) => {
+                const verifyRes = await axios.post("http://localhost:4000/api/v1/payment/verifypayment", {
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                    userId: "user123",
+                    vendorId: "shop456",
+                    productName: "Special Dish",
+                    productPrice: 500
+                });
 
-      const { amount, id: order_id, currency } = data.order;
+                alert(verifyRes.data.message);
+            },
+            prefill: {
+                name: "Aman Tripathi",
+                email: "aman@example.com",
+                contact: "9876543210"
+            }
+        };
 
-      // 2️⃣ Initialize Razorpay
-      const options = {
-        key: "rzp_test_YrfnFWnclrNh4Y", // Replace with Razorpay Key ID
-        amount,
-        currency,
-        name: "Your Company",
-        description: "Test Transaction",
-        order_id,
-        handler: async function (response) {
-          // 3️⃣ Verify Payment
-          const verifyRes = await axios.post("http://localhost:4000/api/v1/payment/verifypayment", response);
-          alert(verifyRes.data.message);
-        },
-        prefill: {
-          name: "Aman Tripathi",
-          email: "aman@example.com",
-          contact: "9999999999",
-        },
-        theme: {
-          color: "#3399cc",
-        },
-      };
-
-      const rzp1 = new window.Razorpay(options);
-      rzp1.open();
-
+        const razorpay = new window.Razorpay(options);
+        razorpay.open();
     } catch (error) {
-      console.error("Payment failed:", error);
-      alert("Payment failed");
-    } finally {
-      setLoading(false);
+        console.error("Error in payment:", error);
     }
-  };
+};
+
 
   return (
     <div>

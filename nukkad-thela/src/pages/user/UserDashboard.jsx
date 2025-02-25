@@ -2,20 +2,19 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ShopCard from "./ShopCart.jsx";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL
-
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const UserDashboard = () => {
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchType, setSearchType] = useState("shopName"); // Default search by shop name
   const [shops, setShops] = useState([]);
 
   // Fetch locations from backend
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const backendUrl = import.meta.env.VITE_BACKEND_URL
         const response = await axios.get(`${backendUrl}/user/getlocations`);
         setLocations(response.data.locations || []);
       } catch (error) {
@@ -25,13 +24,21 @@ const UserDashboard = () => {
     fetchLocations();
   }, []);
 
+  // Fetch shops from backend
   const fetchShops = async () => {
+    if (!selectedLocation) {
+      alert("Please select a location first.");
+      return;
+    }
+
     try {
       const response = await axios.get(`${backendUrl}/user/showshop`, {
-        params: { location: selectedLocation, query: searchQuery },
+        params: {
+          location: selectedLocation,
+          [searchType]: searchQuery, // Dynamically add either 'shopName' or 'dish'
+        },
       });
 
-      console.log(response)
       setShops(response.data.shops || []);
     } catch (error) {
       console.error("Error fetching shops:", error);
@@ -56,16 +63,31 @@ const UserDashboard = () => {
           ))}
         </select>
 
+        {/* Search Type Dropdown (Shop Name / Dish Name) */}
+        <select
+          className="p-2 border rounded-md"
+          value={searchType}
+          onChange={(e) => setSearchType(e.target.value)}
+        >
+          <option value="shopName">Search by Shop Name</option>
+          <option value="dish">Search by Dish Name</option>
+        </select>
+
         {/* Search Input */}
         <input
           type="text"
-          placeholder="Enter shop or dish name..."
+          placeholder={`Enter ${searchType === "shopName" ? "shop" : "dish"} name...`}
           className="p-2 border rounded-md flex-grow"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
 
-        <button onClick={fetchShops}>Search</button>
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+          onClick={fetchShops}
+        >
+          Search
+        </button>
       </div>
 
       {/* Shop List */}

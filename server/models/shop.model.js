@@ -1,5 +1,6 @@
 const mongoose = require("mongoose")
 const Order = require("./order.model.js")
+const RatingAndReviews = require("./review.model.js")
 const shopSchema = mongoose.Schema({
     "shopName" : {
         type : String,

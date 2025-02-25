@@ -303,107 +303,60 @@ const createOrder = async (req, res) => {
   }
 }
 
-const showShops = async(res, req) => {
+const showShops = async (req, res) => {
   try {
-    const {location, dish, shopName} = req.body;
+    const { location, shopName, dish } = req.query; // Using query parameters
 
-    if(!location)
-    {
+    if (!location) {
       return res.status(400).json({
-        success : false, 
-        message : "Kindly Fill The Location To Get The Shops"
-      })
+        success: false,
+        message: "Kindly fill in the location to get the shops",
+      });
     }
 
-    // Here if the shop name is present then search via shop name only
-    if(shopName)
-      {
-        try {
-          const shopDetails = await Shop.find({
-            location, // yaha chahe location : location likho ya na likho 
-            shopName // es6 ke baad iska mtlb yahi hai ki jaha shopName hoga toh isse utha ke yaha daaal dega
-          })
-          
-          return res.status(200).json({
-            success : true,
-            shopDetails : shopDetails
-          })
-        } catch (error) {
-          return res.status(500).json({
-            success : false,
-            message : "Sorry Failed to Fetch The Shops From The DB Server kindly try again Later!"
-          })
-        }
-      }
+    let shopDetails = [];
 
-      // if you have both the dish and the location then search according to both
-      // Here you need to get the data from the dishes too
-      if(dish)
-      {
-        try {
-          const shopDetails = Shop.aggregate([
-            // in the shop section search by location
-            {
-              $match : {
-                location : location
-              }
-            },
+    // 🔹 Search by shop name
+    if (shopName) {
+      shopDetails = await Shop.find({
+        location,
+        shopName: { $regex: shopName, $options: "i" }, // Case-insensitive search
+      });
+    } 
+    // 🔹 Search by dish name
+    else if (dish) {
+      shopDetails = await Shop.aggregate([
+        { $match: { location } }, // Filter by location
 
-            // look at the dishes id in the shop collection
-            {
-              $lookup : {
-                from : "Dish",
-                localFeild : "dishes",
-                foreignFeild : "_id",
-                as : "dishDetails" // dish Details naam se leke aao
-              }
-            },
+        {
+          $lookup: {
+            from: "dishes", // Reference the 'dishes' collection
+            localField: "dishes",
+            foreignField: "_id",
+            as: "dishDetails",
+          },
+        },
 
-            // ab qki Dish Details naam se aa gaya hai toh usse search kar lo
-            {
-              $match : {
-                "dishDetails.name" : dish
-              }
-            }
-          ])
+        { $match: { "dishDetails.name": { $regex: dish, $options: "i" } } }, // Case-insensitive dish search
+      ]);
+    } 
+    // 🔹 Fetch all shops in the location
+    else {
+      shopDetails = await Shop.find({ location });
+    }
 
-
-          return res.status(200).json({
-            success : true,
-            shopDetails
-          })
-        } catch (error) {
-          return res.status(500).json({
-            success : false,
-            message : "Sorry Failed to Fetch The Shops From The DB Server kindly try again Later!"
-          })
-        }
-      }
-
-      // agar upar ki dono conditions true nahi hai then it means that the user  has search according to the location itself
-      
-          try {
-            const shopDetails = await Shop.find({
-              location, // yaha chahe location : location likho ya na likho 
-            })
-            
-            return res.status(200).json({
-              success : true,
-              shopDetails : shopDetails
-            })
-          } catch (error) {
-            return res.status(500).json({
-              success : false,
-              message : "Sorry Failed to Fetch The Shops From The DB Server kindly try again Later!"
-            })
-          }
+    return res.status(200).json({
+      success: true,
+      shops: shopDetails,
+    });
   } catch (error) {
     return res.status(500).json({
-      success : false,
-      message : "Failed To Get The Shops Details Due To Internal Server Error. Kindly Try again after some time"
-    })
+      success: false,
+      message: "Failed to fetch shops due to an internal server error. Try again later.",
+    });
   }
-}
+};
+
 
 exports.showAllLocations = async (req, res) => {
   try {
@@ -422,9 +375,48 @@ exports.showAllLocations = async (req, res) => {
   }
 }
 
+const showShopDetails = async (req, res) => {
+  try {
+      const { shopId } = req.params;  // ✅ Extract shopId from URL params
+      if (!shopId) {
+          return res.status(400).json({
+              success: false,
+              message: "Shop ID is required",
+          });
+      }
+
+      const shopDetails = await Shop.findById(shopId).populate("dishes").populate({
+        path: "reviewsAndRatings",
+        populate: {
+            path: "userId", // ✅ This will populate user details inside each review
+            select: "name email" // ✅ Select specific fields (optional)
+        }
+    });
+      
+      if (!shopDetails) {
+          return res.status(404).json({
+              success: false,
+              message: "Shop not found",
+          });
+      }
+
+      return res.status(200).json({
+          success: true,
+          shop: shopDetails,
+      });
+  } catch (error) {
+      console.error("Error in showShopDetails:", error);  // Log full error
+      return res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+          error: error.message, // Send error message to frontend
+      });
+  }
+};
 
 
 
 
 exports.createOrder = createOrder
 exports.showShops = showShops
+exports.showShopDetails = showShopDetails

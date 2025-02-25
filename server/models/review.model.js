@@ -9,9 +9,8 @@ const reviewAndRatingSchema = mongoose.Schema({
         type : Number,
     },
     "userId" : {
-        // type : mongoose.Schema.ObjectId,
-        // ref : "User",
-        type : String,
+        type : mongoose.Schema.ObjectId,
+        ref : "User",
         required : true,
     }
 })
