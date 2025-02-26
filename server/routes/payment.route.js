@@ -4,6 +4,8 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const Order = require("../models/order.model.js");
 
+const jwt = require("jsonwebtoken");  // ✅ Import JWT
+
 dotenv.config();
 
 const router = express.Router();
@@ -20,14 +22,16 @@ router.post("/createorder", async (req, res) => {
     try {
         const { amount, vendorId, productName } = req.body;
 
-        const userId = res.cookies.userId
-        console.log(userId)
+        const token = req.cookies.userInfo
+        const decoded = jwt.verify(token, process.env.JWT_SECRET); // Replace with your actual secret key
+        const userId = decoded._id
         if (!amount || !userId || !vendorId || !productName) {
             return res.status(400).json({ success: false, message: "Missing required fields" });
         }
-
+        
+        
         const options = {
-            amount: amount * 100,  // Razorpay works in paise (₹1 = 100 paise)
+            amount: amount,  // Razorpay works in paise (₹1 = 100 paise)
             currency: "INR",
             receipt: `order_rcpt_${Date.now()}`,
             payment_capture: 1  // Auto capture payment
@@ -53,25 +57,28 @@ router.post("/verifypayment", async (req, res) => {
     try {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature, vendorId, productName, productPrice } = req.body;
 
-        const userId = req.cookies.userId
-        console.log("User id is : ",userId)
+        const token = req.cookies.userInfo
         const body = razorpay_order_id + "|" + razorpay_payment_id;
         const expectedSignature = crypto
-            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-            .update(body)
-            .digest("hex");
-
+        .createHmac("sha256", process.env.RAZORPAY_API_SECRET)
+        .update(body)
+        .digest("hex");
+        
         if (expectedSignature !== razorpay_signature) {
             return res.status(400).json({ success: false, message: "Invalid Payment Signature" });
         }
 
+        const decoded = await jwt.verify(token, process.env.JWT_SECRET)
+        const userId = decoded._id
+
         // ✅ Step 3: Save order in database
         const newOrder = new Order({
             orderId: razorpay_order_id,
-            vendorId,
+            shopId : vendorId,
             userId,
             productName,
             productPrice,
+            productQuantity,
             paymentStatus: "Success",
             orderStatus: "Pending"
         });

@@ -28,7 +28,7 @@ const Dishes = ({ dishes, shopId }) => {
             const { data } = await axios.post(
                 `${backendUrl}/payment/createorder`, 
                 {
-                    amount: dish.price * 100,  // Razorpay requires amount in paise
+                    amount: (dish.price * (quantities[dish._id] || 1)) * 100,  // Razorpay requires amount in paise
                     vendorId: shopId,  
                     productName: dish.name
                 },
@@ -51,7 +51,8 @@ const Dishes = ({ dishes, shopId }) => {
                             razorpay_signature: response.razorpay_signature,
                             vendorId: shopId,
                             productName: dish.name,
-                            productPrice: dish.price
+                            productQuantity : quantities[dish._id],
+                            productPrice: (dish.price * (quantities[dish._id] || 1))
                         },
                         { withCredentials: true }
                     );

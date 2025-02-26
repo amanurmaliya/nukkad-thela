@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ShopCard from "./ShopCart.jsx";
-
+import { Button } from "@/components/ui/button.jsx";
+import { useNavigate } from "react-router-dom";
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const UserDashboard = () => {
+
+  const navigate = useNavigate()
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,6 +27,9 @@ const UserDashboard = () => {
     fetchLocations();
   }, []);
 
+  const goToOrder = () => {
+    navigate("/order-track")
+  }
   // Fetch shops from backend
   const fetchShops = async () => {
     if (!selectedLocation) {
@@ -98,6 +104,9 @@ const UserDashboard = () => {
           <p className="text-center text-gray-500">No shops found.</p>
         )}
       </div>
+
+
+      <Button onClick={goToOrder}>Go To Orders</Button>
     </div>
   );
 };

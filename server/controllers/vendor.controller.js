@@ -12,7 +12,7 @@ const uploadOnCloudinary = require("../utils/cloudinary.js")
 const jwt = require("jsonwebtoken");
 
 const bcrypt = require("bcrypt");
-
+require("dotenv").config()
 const createVendor = async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
@@ -173,57 +173,55 @@ const photoUploadUsingMulterAndCloudinary = async (req, res, next) => {
     }
 };
 
+const SECRET_KEY = process.env.JWT_SECRET; // Ensure you have a secret key in your env
 
+// Controller to fetch orders of a vendor
 const showOrders = async (req, res) => {
     try {
-        // Extract vendorId from request (assuming it's sent as a query param or in req.user)
-        const vendorId = req.query?.vendorId || req.user?.id || "abc"; 
+      const decoded = jwt.verify(req?.cookies?.vendorInfo, process.env.JWT_SECRET);
+      const vendorId = decoded?._id;
 
-        // Validate vendorId
+      // actually what you have stored is the shop id rather than the vendor id so get the shop id 
+      const vendor = await Vendor.findById(vendorId)
+      const shopId = vendor?.shop
+      
+
         if (!vendorId) {
-            return res.status(400).json({ success: false, message: "Vendor ID is required" });
+            return res.status(400).json({ success: false, message: "Invalid vendor token" });
         }
 
-        // Fetch orders where vendorId matches
-        // const orders = await Order.find({ vendorId });
-        const dummyOrders = [
-            {
-              orderId: "ORD12345",
-              vendorId: "65b32c3f5a4bcd123456789a", // Replace with an actual Vendor ID from your DB
-              userId: "name1", // Replace with an actual User ID from your DB
-              productName: "Cheese Pizza",
-              productPrice: 250,
-              paymentStatus: "Success",
-              orderStatus: "Pending"
-            },
-            {
-              orderId: "ORD12346",
-              vendorId: "65b32c3f5a4bcd123456789a",
-              userId: "name2",
-              productName: "Veg Burger",
-              productPrice: 120,
-              paymentStatus: "Success",
-              orderStatus: "Cooking"
-            },
-            {
-              orderId: "ORD12347",
-              vendorId: "65b32c3f5a4bcd123456789d",
-              userId: "name3",
-              productName: "Chicken Biryani",
-              productPrice: 350,
-              paymentStatus: "Failure",
-              orderStatus: "Pending"
-            }
-          ];
-
-        // Return the orders in JSON format
-        return res.status(200).json({ success: true, orders : dummyOrders});
-
+        // Fetch orders from DB
+        const orders = await Order.find({ shopId})
+        .populate("userId" , "name -_id") // Take out the userId and from that take out the name of the user and remove the _id of the user since i donot want it at the frontend
+        .select('-vendorId'); // Exclude vendorId since i do not want this too;
+        return res.status(200).json({ success: true, orders });
     } catch (error) {
         console.error("Error fetching orders:", error);
         return res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 };
+
+// Controller to update order status
+const changeStatus = async (req, res) => {
+    try {
+      const { orderId,  orderStatus} = req.body;
+        if (!orderId || !orderStatus) {
+            return res.status(400).json({ success: false, message: "Order ID and new status are required" });
+        }
+
+        // Update order status in DB
+        const updatedOrder = await Order.findByIdAndUpdate(orderId, { orderStatus }, { new: true });
+        if (!updatedOrder) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        return res.status(200).json({ success: true, message: "Order status updated", order: updatedOrder });
+    } catch (error) {
+        console.error("Error updating order status:", error);
+        return res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
 
 
 exports.vendorLogin = async (req, res) => {
@@ -296,3 +294,5 @@ exports.createVendor = createVendor
 exports.createShop = createShop
 exports.photoUploadUsingMulterAndCloudinary = photoUploadUsingMulterAndCloudinary
 exports.showOrders = showOrders
+exports.showOrders =  showOrders;
+exports.changeStatus = changeStatus

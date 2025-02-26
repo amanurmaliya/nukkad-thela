@@ -415,6 +415,23 @@ const showShopDetails = async (req, res) => {
 };
 
 
+exports.showOrders = async (req, res) => {
+  try {
+    const userId = req.user.id; // Get userId from middleware
+
+    const orders = await Order.find({ userId }) // Find orders for the user
+      .populate("shopId",  "shopName" ) // Populate shop name
+      .select("-vendorId -userId"); // Exclude vendorId and userId
+
+    res.status(200).json({ success: true,  orders });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error", error });
+  }
+};
+
+
+
+
 
 
 exports.createOrder = createOrder

@@ -14,7 +14,6 @@ const ShopDetail = () => {
                 const backendUrl = import.meta.env.VITE_BACKEND_URL;
                 const response = await axios.get(`${backendUrl}/user/shop/${shopId}`);
                 setShop(response.data.shop);
-                console.log(response.data)
             } catch (error) {
                 console.error("Error fetching shop details", error);
             }
@@ -50,10 +49,6 @@ const ShopDetail = () => {
                     <span className="text-3xl font-extrabold text-yellow-300">{shop.overallRating} ★</span>
                 </div>
                 <ReviewAndRating reviews={shop.reviewsAndRatings} />
-            </div>
-            <div className="m-8">
-
-                <UserReview shopId={shop._id}/>
             </div>
         </div>
     );

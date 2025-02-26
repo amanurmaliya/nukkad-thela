@@ -1,6 +1,7 @@
 const express = require("express");
-const { signUp , login, createOrder, createUser, showShops, showAllLocations, showShopDetails} = require("../controllers/user.controller.js");
+const { signUp , login, createOrder, createUser, showShops, showAllLocations, showShopDetails, showOrders} = require("../controllers/user.controller.js");
 const sendOTP = require("../utils/sendMail");
+const verifyUser  = require("../middlewares/verifyUser.middleware.js");
 
 const userRouter = express.Router();
 
@@ -27,6 +28,9 @@ userRouter.get("/getlocations", showAllLocations)
 
 // Get Shop Details by ID (With Dummy Data Support)
 userRouter.get('/shop/:shopId', showShopDetails);
+
+// Get all the order Details that you have made
+userRouter.get('/showorders',verifyUser, showOrders)
 
 
 

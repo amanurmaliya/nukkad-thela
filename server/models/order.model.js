@@ -6,9 +6,9 @@ const orderSchema = new mongoose.Schema({
         unique: true,
         required: true,
     },
-    "vendorId" : {
+    "shopId" : {
         type : mongoose.Schema.Types.ObjectId,
-        ref : "Vendor",
+        ref : "Shop",
         required : true
     }, 
     "userId" : {
@@ -24,6 +24,11 @@ const orderSchema = new mongoose.Schema({
         type : Number,
         required : true,
     },
+    "productQuantity":
+    {
+        type : Number,
+        default : 1
+    },
     "paymentStatus" : {
         type : String,
         enum : ["Success", "Failure"],
@@ -35,7 +40,9 @@ const orderSchema = new mongoose.Schema({
         default : "Pending",
         required : true,
     }
-})
+},
+{ timestamps: true }); // This will automatically add createdAt and updatedAt fields
+
 
 const Order = mongoose.model("Order", orderSchema);
 

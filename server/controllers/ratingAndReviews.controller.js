@@ -56,14 +56,8 @@ const likeOrDislike = async (req, res) => {
 
 const createRatingAndReview = async (req, res) => {
     try {
-        // ✅ Extract user token from cookies
-        const token = req?.cookies?.userInfo;
-        if (!token) {
-            return res.status(401).json({ success: false, message: "Unauthorized, no token found" });
-        }
         
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const userId = decoded._id; // ✅ Extract userId from token
+        const userId = req.user.id; // Get userId from middleware; // ✅ Extract userId from token
         
         const { comment, rate, shopId } = req.body;
         // ✅ Validate input
