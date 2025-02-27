@@ -47,6 +47,7 @@ const ShopOrders = () => {
       if (Array.isArray(response.data.orders)) {
         setOrders(response.data.orders);
         updateStatusCount(response.data.orders);
+        console.log(response.data.orders)
       }
     } catch (error) {
       console.error("Error updating order status:", error);

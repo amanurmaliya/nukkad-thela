@@ -15,21 +15,17 @@ import {
 const PopUp = ({ title, description, user, page }) => {
   const [open, setOpen] = useState(true);
   const navigate = useNavigate();
-  
-  // Get backend URL from environment variable
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  
-  // Construct the destination URL
-  const destinationUrl = `${backendUrl}/api/v1/${user}/${page}`;
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setOpen(false);
-      navigate(`/${page}`);
-    }, 5000);
+      if (page) {
+        navigate(page); // Ensure `page` is valid before navigating
+      }
+    }, 1000);
 
     return () => clearTimeout(timer);
-  }, [destinationUrl, navigate]);
+  }, [page, navigate]); // ✅ Dependency fixed
 
   return (
     <AlertDialog open={open}>
@@ -40,10 +36,14 @@ const PopUp = ({ title, description, user, page }) => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => setOpen(false)}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => {
-            setOpen(false);
-            navigate(destinationUrl);
-          }}>
+          <AlertDialogAction
+            onClick={() => {
+              setOpen(false);
+              if (page) {
+                navigate(page);
+              }
+            }}
+          >
             Ok
           </AlertDialogAction>
         </AlertDialogFooter>

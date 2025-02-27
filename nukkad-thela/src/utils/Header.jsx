@@ -15,8 +15,8 @@ const Header = () => {
             <div className="text-2xl font-bold  ">Nukkad-Thela</div>
             <div className="hidden md:flex space-x-4">
                 <a href="/dashboard" className="hover:underline">Home</a>
-                <a href="#about" className="hover:underline">About</a>
-                <a href="#services" className="hover:underline">Services</a>
+                <a href="/about" className="hover:underline">About</a>
+                <a href="/service" className="hover:underline">Services</a>
                 <a href="#contact" className="hover:underline">Contact</a>
             </div>
             <div className="md:hidden">

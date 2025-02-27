@@ -58,5 +58,50 @@ const createDish = async (req, res) => {
     }
 };
 
+// ✅ Controller to get all dishes for a vendor's shop
+const showDishes = async (req, res) => {
+  try {
+    const vendorId = req.vendorId; // Extracted from middleware
+    
+    // Find the shop associated with this vendor
+    const vendor = await Vendor.findById(vendorId)
+    const shopId = vendor?.shop
+    const shop = await Shop.findById(shopId )?.populate("dishes");
 
-module.exports = {createDish}
+    if (!shop) {
+      return res.status(404).json({ message: "Shop not found for this vendor" });
+    }
+
+    res.status(200).json({ dishes: shop.dishes });
+  } catch (error) {
+    console.error("Error fetching dishes:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ Controller to delete a dish and remove it from the shop
+const deleteDish = async (req, res) => {
+  try {
+    const { dishId } = req.params;
+
+    // Delete the dish from the Dishes collection
+    const deletedDish = await Dish.findByIdAndDelete(dishId);
+    if (!deletedDish) {
+      return res.status(404).json({ message: "Dish not found" });
+    }
+
+    // Remove the dish ID from the parent Shop's dishes array
+    await Shop.updateOne(
+      { dishes: dishId },
+      { $pull: { dishes: dishId } }
+    );
+
+    res.status(200).json({ message: "Dish deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting dish:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = {createDish, showDishes, deleteDish };
+

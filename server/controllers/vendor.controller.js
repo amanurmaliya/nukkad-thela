@@ -289,6 +289,63 @@ exports.vendorLogin = async (req, res) => {
 };
 
 
+exports.getShopDetails = async (req, res) => {
+  try {
+    const vendorId = req.vendorId; // Assuming vendorId is coming from authentication middleware
+
+    const vendor = await Vendor.findById(vendorId)
+
+    const shopId = vendor?.shop
+    // Find the shop associated with the vendorId
+    const shop = await Shop.findById( shopId );
+
+    if (!shop) {
+      return res.status(200).json({ success: false, message: 'No shop found' });
+    }
+    return res.status(200).json({ success: true, shop, vendorName : vendor.name });
+  } catch (error) {
+    console.error('Error fetching shop details:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
+
+exports.getShopReviews = async (req, res) => {
+    try {
+        const vendorId = req.vendorId; // Assuming vendor ID is extracted from authentication middleware
+        const vendor = await Vendor.findById(vendorId)
+
+        const shopId = await vendor?.shop
+        // Find the shop based on vendor ID
+        const shop = await Shop.findOne( shopId )
+            .populate("dishes") // Populate dishes if needed
+            .populate({
+                path: "reviewsAndRatings",
+                populate: {
+                    path: "userId", // Populate user details inside each review
+                    select: "name email", // Select specific fields
+                },
+            });
+
+        if (!shop) {
+            return res.status(404).json({ success: false, message: "Shop not found" });
+        }
+
+        // Return shop reviews
+        return res.status(200).json({
+            success: true,
+            reviews: shop.reviewsAndRatings || [],
+        });
+    } catch (error) {
+        console.error("Error fetching shop reviews:", error);
+        return res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
+
+
+
 // This syntax is also used to export multiple functions from files
 exports.createVendor = createVendor
 exports.createShop = createShop

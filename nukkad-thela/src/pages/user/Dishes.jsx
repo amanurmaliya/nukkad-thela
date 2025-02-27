@@ -57,7 +57,10 @@ const Dishes = ({ dishes, shopId }) => {
                         { withCredentials: true }
                     );
     
-                    alert(verifyRes.data.message);
+                    navigate("/")
+                    setTimeout(() => {
+                        alert(verifyRes.data.message);  // Show alert after navigation
+                    }, 500);
                 },
                 prefill: {
                     name: "Aman Tripathi",

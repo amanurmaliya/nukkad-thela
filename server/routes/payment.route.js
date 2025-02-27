@@ -55,7 +55,7 @@ router.post("/createorder", async (req, res) => {
 // ✅ Step 2: Verify Payment and Save Order
 router.post("/verifypayment", async (req, res) => {
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, vendorId, productName, productPrice } = req.body;
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, vendorId, productName, productPrice, productQuantity } = req.body;
 
         const token = req.cookies.userInfo
         const body = razorpay_order_id + "|" + razorpay_payment_id;

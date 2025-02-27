@@ -20,7 +20,7 @@ const About = () => {
       {/* Hero Section */}
       <section
         className="relative h-[600px] bg-cover bg-center flex items-center justify-center text-white text-center px-6"
-        style={{ backgroundImage: "url('../../src/assets/images/hero-bg.jpeg')" }}
+        style={{ backgroundImage: "url('../../src/assets/images/about-bg.jpg')" }}
       >
         <div className="bg-black bg-opacity-60 p-8 rounded-lg shadow-lg">
           <h1 className="text-5xl font-extrabold tracking-wide">

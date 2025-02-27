@@ -63,7 +63,7 @@ const CreateDish = () => {
         title: "Failed",
         description: errorMessage,
         user: "vendor",
-        page: "",
+        page: "/dashboard",
       });
     }
   };

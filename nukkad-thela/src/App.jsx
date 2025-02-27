@@ -24,6 +24,8 @@ import CustomerDashboard from "./pages/user/UserDashboard2.jsx";
 import ShopOrders from "./pages/vendor/ShopOrders.jsx";
 import OrderStatus from "./pages/user/OrderStatus.jsx";
 import About from "./pages/about/About.jsx";
+import ShowDishes from "./pages/vendor/ShowDishes.jsx";
+import Service from "./utils/Services.jsx";
 
 function App() {
   return (
@@ -46,7 +48,7 @@ function App() {
         <Route path="/order-details" element={<Order/>}></Route>
         <Route path="/upload-photo" element={<PhotoUpload/>}></Route>
         <Route path="/dashboard" element={<VendorDashboard/>}></Route>
-        <Route path="/menu" element={<Menu/>}></Route>
+        <Route path="/show-dishes" element={<ShowDishes/>}></Route>
         <Route path="/show-reviews" element={<ShowReviews/>}></Route>
         <Route path="/shop-detail" element={<ShopDetail/>}></Route>
         <Route path="/shop-detail/:id" element={<ShowShopDetails/>}></Route>
@@ -57,6 +59,7 @@ function App() {
         <Route path='/show-orders' element={<ShopOrders/>}></Route>
         <Route path="/show-user-orders" element={<OrderStatus/>}></Route>
         <Route path="/about" element={<About/>}></Route>
+        <Route path="/service" element={<Service/>}></Route>
         {/* </div>{" "} */}
     </Routes>
     </BrowserRouter>
