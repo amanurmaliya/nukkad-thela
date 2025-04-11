@@ -1,29 +1,11 @@
-import { Cookie } from 'lucide-react';
 import React , {useState} from 'react'
 
-import Cookies from "js-cookie";
+const HeaderUser = () => {
 
-const Header = () => {
+    // <div>HeaderUser</div>
 
-    // <div>Header</div>
     const [isOpen, setIsOpen] = useState(false);
-    const [href, setHref] = useState("/");
-    const handleRedirect = (event) => {
-        event.preventDefault(); // Prevent default anchor behavior
-        console.log(Cookies.get("vendorInfo"))
-        console.log(Cookies.get("userInfo"))
-        console.log(document.cookie)
-        const vendorInfo = Cookies.get("vendorInfo");
-        const userInfo = Cookies.get("userInfo");
-      
-        if (vendorInfo) {
-          window.location.href = "/dashboard";
-        } else if (userInfo) {
-          window.location.href = "/";
-        } else {
-          window.location.href = "#";
-        }
-      };
+
     const toggleMenu = () => {
         setIsOpen(!isOpen);
     };
@@ -32,7 +14,7 @@ const Header = () => {
         <header className="bg-[#FACC15] text-black p-6 flex justify-between items-center">
             <div className="text-2xl font-bold  ">Nukkad-Thela</div>
             <div className="hidden md:flex space-x-4">
-                <a href='#'  className="hover:underline"  onClick={handleRedirect}>Home</a>
+                <a href="/" className="hover:underline">Home</a>
                 <a href="/about" className="hover:underline">About</a>
                 <a href="/service" className="hover:underline">Services</a>
                 <a href="#contact" className="hover:underline">Contact</a>
@@ -60,4 +42,4 @@ const Header = () => {
   )
 }
 
-export default Header;
+export default HeaderUser

@@ -27,7 +27,7 @@ const About = () => {
             Welcome to <span className="text-yellow-400">Nukkad Thela</span>
           </h1>
           <p className="text-lg mt-4 max-w-2xl mx-auto">
-            Savor the flavors of authentic street food, crafted with love and passion.
+            Discover the best right around the corners...!!
           </p>
           <button className="mt-6 px-6 py-3 bg-yellow-400 text-gray-900 font-semibold rounded-full shadow-md hover:bg-yellow-500 transition">
             Order Now

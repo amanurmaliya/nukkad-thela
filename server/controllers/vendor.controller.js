@@ -261,6 +261,7 @@ exports.vendorLogin = async (req, res) => {
       _id: vendorExists._id,
       email: vendorExists.email,
       shopId: vendorExists.shopId, // Assuming the vendor has a shopId
+      userType : "Vendor"
     };
 
     // Generate JWT token
@@ -318,7 +319,7 @@ exports.getShopReviews = async (req, res) => {
 
         const shopId = await vendor?.shop
         // Find the shop based on vendor ID
-        const shop = await Shop.findOne( shopId )
+        const shop = await Shop.findOne( shopId   )
             .populate("dishes") // Populate dishes if needed
             .populate({
                 path: "reviewsAndRatings",

@@ -33,7 +33,7 @@ const ShopDetail = () => {
                     <p className="text-lg text-yellow-500 mt-2">{shop.location}</p>
                     <p className="text-md text-yellow-600 mt-1 italic">{shop.description}</p>
                 </div>
-                <img src={shop.image} alt={shop.name} className="w-48 h-48 object-cover rounded-lg border-4 border-yellow-300 shadow-md" />
+                <img src='https://res.cloudinary.com/dzqjbiqzb/image/upload/v1740634446/shop1_gu5fiv.webp' alt={shop.name} className="w-48 h-48 object-cover rounded-lg border-4 border-yellow-300 shadow-md" />
             </div>
 
             {/* Middle Section - Dishes */}

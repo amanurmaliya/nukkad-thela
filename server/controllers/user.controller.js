@@ -195,7 +195,7 @@ exports.login = async (req, res) => {
     const payload = {
       _id: userExists._id,
       email: userExists.email,
-      userType: userExists.userType, // Ensure userType is stored in DB
+      userType: "User", // Ensure userType is stored in DB
     };
 
     // Generate JWT token with expiry

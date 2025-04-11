@@ -86,7 +86,7 @@ const Dishes = ({ dishes, shopId }) => {
                 return (
                     <div key={dish._id} className="p-4 bg-gray-900 text-yellow-300 rounded-lg shadow-lg">
                         <img 
-                            src={dish.image} 
+                            src='https://res.cloudinary.com/dzqjbiqzb/image/upload/v1740634444/dish2_b1ky6p.webp' 
                             alt={dish.name} 
                             className="w-full h-40 object-cover rounded-md mb-3 border-2 border-yellow-400"
                         />

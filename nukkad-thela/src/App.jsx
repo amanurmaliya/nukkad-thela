@@ -31,7 +31,7 @@ function App() {
   return (
     <>
     <div>
-    <Header/>
+        <Header/>
     <BrowserRouter>
     <Routes>
 
@@ -52,10 +52,10 @@ function App() {
         <Route path="/show-reviews" element={<ShowReviews/>}></Route>
         <Route path="/shop-detail" element={<ShopDetail/>}></Route>
         <Route path="/shop-detail/:id" element={<ShowShopDetails/>}></Route>
-        <Route path="/" element={<UserDashboard/>}></Route>
+        <Route path="/manisha" element={<UserDashboard/>}></Route>
         <Route path="/order-success" element={<OrderSuccess />} />
         <Route path="/order-track" element={<OrderTracking/>}></Route>
-        <Route path="/manisha" element={<CustomerDashboard/>}></Route>
+        <Route path="/" element={<CustomerDashboard/>}></Route>
         <Route path='/show-orders' element={<ShopOrders/>}></Route>
         <Route path="/show-user-orders" element={<OrderStatus/>}></Route>
         <Route path="/about" element={<About/>}></Route>
